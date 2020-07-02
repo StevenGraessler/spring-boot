@@ -108,9 +108,13 @@
   background: rgba(0, 0, 0, 0.2);
 }
 
+.mdl-card__media {
+  overflow:hidden;
+  height: 200px;
+  background-color: inherit;
+}
 img.article-image {
-  width: 100%;
-  height: auto;
+  height: 100%;
 }
 
 .portfolio-max-width {
@@ -168,3 +172,12 @@ footer {
   background-size: cover;
 }
 
+.mdl-textfield__label.select {
+    top: 0px;
+}
+
+.mdl-card__supporting-text > label {
+    display: inline-block;
+    width: 8em;
+    font-weight: 700;
+}
