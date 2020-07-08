@@ -11,20 +11,21 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
-import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.validation.Valid;
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Optional;
 
 @Controller
+@RequestMapping(value = "/")
 public class SimpleController {
     @Autowired
     ProduktRepository produktRepository;
@@ -42,59 +43,25 @@ public class SimpleController {
         return name;
     }
 
-    @GetMapping("/bearbeiten.html")
-    public String bearbeiten(@RequestParam(required = false, name = "id") Long id, Model model) {
-        Produkt aktuellesProdukt = new Produkt();
-        if (id != null) {
-            Optional<Produkt> produktDB = produktRepository.findById(id);
-            if (produktDB.isPresent()) {
-                aktuellesProdukt = produktDB.get();
-            }
-        }
-        model.addAttribute("titel", "bearbeiten");
-        model.addAttribute("produkt", aktuellesProdukt);
-        return "bearbeiten";
-    }
-
-    @PostMapping("/speichern")
-    public String speichern(@RequestParam MultipartFile file,
-                            @Valid Produkt produkt, BindingResult fields,
-                            Model model, RedirectAttributes redirect) throws IOException {
-        if (fields.hasErrors()) {
-            return "bearbeiten";
-        }
-        produkt.setDateiname(file.getOriginalFilename());
-        produkt.setDatei(file.getBytes());
-        produktRepository.save(produkt);
-
-        redirect.addFlashAttribute("message", "Produkt \"" + produkt.getName() + "\" gespeichert.");
-        model.addAttribute("produkte", produktRepository.findAll());
-        return "redirect:/index.html";
-    }
-
-    @GetMapping("/loeschen")
-    public String loeschen(@RequestParam Long id, Model model) {
-        if (id != null) {
-            Optional<Produkt> produktDB = produktRepository.findById(id);
-            if (produktDB.isPresent()) {
-                produktRepository.delete(produktDB.get());
-            }
-        }
-        return "redirect:/index.html";
-    }
-
     @GetMapping("/fotos/{id}")
-    public ResponseEntity<Resource> fotos(@PathVariable Long id) {
+    public ResponseEntity<Resource> fotos(@PathVariable Long id) throws IOException, URISyntaxException {
         Produkt produkt = new Produkt();
+        byte[] bytes = new byte[0];
         if (id != null) {
             Optional<Produkt> produktDB = produktRepository.findById(id);
             if (produktDB.isPresent()) {
                 produkt = produktDB.get();
+                bytes = produkt.getDatei();
+                // wenn kein Bild hochgeladen wurde, dann lade das Standard-Bild
+                if (bytes == null || bytes.length == 0) {
+                    URL imageURL = this.getClass().getClassLoader().getResource("./static/images/no-image.png");
+                    bytes = Files.readAllBytes(Paths.get(imageURL.toURI()));
+                }
             }
         }
         return ResponseEntity.ok()
                 .contentType(MediaType.IMAGE_JPEG)
-                .body(new ByteArrayResource(produkt.getDatei()));
+                .body(new ByteArrayResource(bytes));
     }
 
     @GetMapping("/warenkorb.html")
@@ -141,17 +108,4 @@ public class SimpleController {
         model.addAttribute("warenkorb", warenkorb);
         return "redirect:/warenkorb.html";
     }
-
-    @ExceptionHandler(Exception.class)
-    public ModelAndView handleError(HttpServletRequest req, Exception ex) {
-        StringWriter sw = new StringWriter();
-        PrintWriter pw = new PrintWriter(sw);
-        ex.printStackTrace(pw);
-        ModelAndView mav = new ModelAndView();
-        mav.addObject("exception", sw.toString());
-        mav.setViewName("error");
-        return mav;
-    }
-
-
 }
