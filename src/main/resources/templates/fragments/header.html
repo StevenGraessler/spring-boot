@@ -37,7 +37,7 @@ function switchLanguage(select) {
             <a sec:authorize="isAuthenticated()" href="/logout" class="mdl-navigation__link" th:text="#{nav.logout}"></a>
         </span>
         <span sec:authorize="isAuthenticated()">
-            User: <span sec:authentication="name"></span>
+            <a href="#" class="mdl-navigation__link">User: <span sec:authentication="name"></span></a>
         </span>
     </div>
 </header>
