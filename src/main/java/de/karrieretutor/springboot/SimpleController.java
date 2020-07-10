@@ -40,6 +40,7 @@ public class SimpleController {
     public String htmlMapping(@PathVariable(name = "name") String name, Model model) {
         model.addAttribute("titel", StringUtils.capitalize(name));
         model.addAttribute("produkte", produktRepository.findAll());
+        model.addAttribute("warenkorb", this.warenkorb);
         return name;
     }
 

@@ -181,3 +181,13 @@ footer {
     width: 8em;
     font-weight: 700;
 }
+.mdl-button--accent.mdl-button--accent {
+color:black;
+}
+.mdl-button.mdl-button--colored {
+color:blue;
+
+}
+.big {
+font-size:x-large;
+}
