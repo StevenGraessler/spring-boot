@@ -181,13 +181,15 @@ footer {
     width: 8em;
     font-weight: 700;
 }
-.mdl-button--accent.mdl-button--accent {
-color:black;
-}
-.mdl-button.mdl-button--colored {
-color:blue;
 
+.mdl-data-table {
+    margin: 2em 8px;
 }
-.big {
-font-size:x-large;
+.mdl-data-table th {
+    background-color: #EEEEEE;
+    font-size: larger;
+}
+
+.mdl-data-table tfoot {
+    font-size: larger;
 }

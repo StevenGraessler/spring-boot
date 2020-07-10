@@ -67,9 +67,6 @@ public class SimpleController {
 
     @GetMapping("/warenkorb.html")
     public String ladeWarenkorb(@RequestParam(required = false) Long id, Model model) {
-        if (id != null) {
-            // TODO: lade Warenkorb aus der Datenbank
-        }
         model.addAttribute("titel", "Warenkorb");
         model.addAttribute("warenkorb", this.warenkorb);
         return "warenkorb";
