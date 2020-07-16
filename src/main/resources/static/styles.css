@@ -1,8 +1,7 @@
 .portfolio-header {
   position: relative;
-  background-image: url(images/header-bg.jpg);
+  background-image: url(images/footer-background.jpg);
 }
-
 .portfolio-header .mdl-layout__header-row {
   padding: 0;
   -webkit-justify-content: center;

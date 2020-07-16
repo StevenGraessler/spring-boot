@@ -53,7 +53,7 @@
 				<tr>
 					<td></td>
 					<td class="mdl-data-table__cell--non-numeric">
-						Anzahl der Produkte: <span th:text="${warenkorb.produkte.size()}"/>
+						<span th:text="#{label.nr.products}"></span> <span th:text="${warenkorb.produkte.size()}"/>
 					</td>
 					<td>Gesamtpreis: <span th:text="${warenkorb.gesamtpreis}"/> &euro;</td>
 				</tr>
