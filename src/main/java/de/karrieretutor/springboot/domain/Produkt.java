@@ -1,9 +1,8 @@
 package de.karrieretutor.springboot.domain;
 
-import org.hibernate.validator.constraints.NotBlank;
-
 import javax.persistence.*;
 import javax.validation.constraints.Min;
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
 @Entity
@@ -13,20 +12,20 @@ public class Produkt {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    @NotBlank()
+    @NotBlank(message = "{validation.produkt.name}")
     private String name;
 
-    @NotBlank(message = "Bitte geben Sie ein/e Herkunftsland/-region ein")
+    @NotBlank(message = "{validation.produkt.herkunft}")
     private String herkunft;
 
-    @NotNull(message = "Bitte geben Sie eine Kategorie ein")
+    @NotNull(message = "{validation.produkt.kategorie}")
     private Kategorie kategorie;
 
-    @NotNull(message = "Bitte geben Sie eine Unterkategorie ein")
+    @NotNull(message = "{validation.produkt.unterkategorie}")
     private Unterkategorie unterkategorie;
 
-    @Min(value = 5, message = "Der Preis muss größer als 5€ sein")
-    private double preis = 5;
+    @Min(value = 1, message = "{validation.produkt.preis}")
+    private double preis = 1;
 
     private String dateiname;
 

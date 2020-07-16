@@ -3,6 +3,7 @@ package de.karrieretutor.springboot;
 import de.karrieretutor.springboot.domain.Produkt;
 import de.karrieretutor.springboot.domain.ProduktRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -15,11 +16,15 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.validation.Valid;
 import java.io.IOException;
+import java.util.Locale;
 import java.util.Optional;
 
 @Controller
 @RequestMapping(value = "/admin/")
 public class AdminController {
+    @Autowired
+    MessageSource messageSource;
+
     @Autowired
     ProduktRepository produktRepository;
 
@@ -40,26 +45,32 @@ public class AdminController {
     @PostMapping("speichern")
     public String speichern(@RequestParam MultipartFile file,
                             @Valid Produkt produkt, BindingResult fields,
-                            Model model, RedirectAttributes redirect) throws IOException {
+                            Model model, RedirectAttributes redirect,
+                            Locale locale) throws IOException {
         if (fields.hasErrors()) {
-            return "bearbeiten";
+            // TODO: File mitliefern
+            return "admin/bearbeiten";
         }
         produkt.setDateiname(file.getOriginalFilename());
         produkt.setDatei(file.getBytes());
         produktRepository.save(produkt);
 
-        redirect.addFlashAttribute("message", "Produkt \"" + produkt.getName() + "\" gespeichert.");
+        String message = messageSource.getMessage("product.saved", new Object[]{produkt.getName()}, locale);
+        redirect.addFlashAttribute("message", message);
         model.addAttribute("produkte", produktRepository.findAll());
         return "redirect:/index.html";
     }
 
     @GetMapping("loeschen")
-    public String loeschen(@RequestParam Long id, Model model, RedirectAttributes redirect) {
+    public String loeschen(@RequestParam Long id, Model model,
+                           RedirectAttributes redirect,
+                           Locale locale) {
         if (id != null) {
             Optional<Produkt> produktDB = produktRepository.findById(id);
             if (produktDB.isPresent()) {
                 Produkt produkt = produktDB.get();
-                redirect.addFlashAttribute("message", "Produkt \"" + produkt.getName() + "\" gelöscht.");
+                String message = messageSource.getMessage("product.deleted", new Object[]{produkt.getName()}, locale);
+                redirect.addFlashAttribute("message", message);
                 produktRepository.delete(produkt);
             }
         }
