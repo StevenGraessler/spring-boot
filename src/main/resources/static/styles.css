@@ -1,7 +1,13 @@
+.mdl-layout__header {
+  color: white;
+}
 .portfolio-header {
   position: relative;
-  background-image: url(images/footer-background.jpg);
+  background-image: url(images/e-learning.jpg);
+  background-size: cover;
+  background-repeat: no-repeat;
 }
+
 .portfolio-header .mdl-layout__header-row {
   padding: 0;
   -webkit-justify-content: center;
@@ -21,6 +27,7 @@
 
 .portfolio-logo-row {
   min-height: 200px;
+  text-shadow: 2px 4px rgba(0,0,0,1);
 }
 
 .is-compact .portfolio-logo-row {
@@ -42,7 +49,7 @@
 }
 
 .portfolio-navigation-row {
-  background-color: rgba(0, 0, 0, 0.08);
+  background-color: rgba(0, 0, 0, 0.2);
   text-transform: uppercase;
   height: 45px;
 }
@@ -58,6 +65,7 @@
       -ms-flex: 1;
           flex: 1;
   line-height: 42px;
+  color: white;
 }
 
 .portfolio-header .mdl-layout__drawer-button {
@@ -117,8 +125,11 @@ img.article-image {
 }
 
 .portfolio-max-width {
-  max-width: 900px;
+  max-width: 1280px;
   margin: auto;
+}
+.portfolio-max-width .mdl-card {
+  margin: 5px auto;
 }
 
 .portfolio-copy {

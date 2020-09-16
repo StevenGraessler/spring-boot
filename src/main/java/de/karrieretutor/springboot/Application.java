@@ -23,7 +23,8 @@ public class Application implements WebMvcConfigurer {
 
     public static void main(String[] args) {
         SpringApplication.run(Application.class, args);
-        LOG.info("http://localhost:8080");
+        LOG.info("http://localhost:8080/app/");
+        // TODO: Produkte als Bean
     }
 
     @Bean

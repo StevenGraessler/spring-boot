@@ -3,6 +3,8 @@ package de.karrieretutor.springboot;
 import de.karrieretutor.springboot.domain.Produkt;
 import de.karrieretutor.springboot.domain.ProduktRepository;
 import de.karrieretutor.springboot.domain.Warenkorb;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.core.io.ByteArrayResource;
@@ -23,40 +25,58 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 
 @Controller
 @RequestMapping(value = "/")
 public class SimpleController {
+    Logger LOG = LoggerFactory.getLogger(SimpleController.class);
+
     @Autowired
     MessageSource messageSource;
 
     @Autowired
     ProduktRepository produktRepository;
-    Warenkorb warenkorb = new Warenkorb();
+    public Warenkorb warenkorb = new Warenkorb();
+    List<Produkt> produkte = new ArrayList<>();
 
     @GetMapping("/")
     public String homePage(Model model) {
         return "redirect:/index.html";
     }
 
+    @GetMapping("/app")
+    public String app() {
+        return "redirect:/app/index.html";
+    }
+
+    @GetMapping("/index.html")
+    public String shop(Model model, Locale locale) {
+        model.addAttribute("titel", "Index");
+        if (produkte.isEmpty()) {
+            produktRepository.findAll().forEach(produkte::add);
+        }
+        model.addAttribute("produkte", produkte);
+        model.addAttribute("warenkorb", this.warenkorb);
+        return "index";
+    }
+
     @GetMapping("/{name}.html")
     public String htmlMapping(@PathVariable(name = "name") String name, Model model) {
         model.addAttribute("titel", StringUtils.capitalize(name));
-        model.addAttribute("produkte", produktRepository.findAll());
         model.addAttribute("warenkorb", this.warenkorb);
         return name;
     }
 
     @GetMapping("/fotos/{id}")
     public ResponseEntity<Resource> fotos(@PathVariable Long id) throws IOException, URISyntaxException {
-        Produkt produkt = new Produkt();
         byte[] bytes = new byte[0];
         if (id != null) {
-            Optional<Produkt> produktDB = produktRepository.findById(id);
-            if (produktDB.isPresent()) {
-                produkt = produktDB.get();
+            Produkt produkt = getProdukt(id);
+            if (produkt != null) {
                 bytes = produkt.getDatei();
                 // wenn kein Bild hochgeladen wurde, dann lade das Standard-Bild
                 if (bytes == null || bytes.length == 0) {
@@ -66,27 +86,18 @@ public class SimpleController {
             }
         }
         return ResponseEntity.ok()
-                // TODO: Dateiname zurückliefern
-                .contentType(MediaType.IMAGE_JPEG)
-                .body(new ByteArrayResource(bytes));
-    }
-
-    @GetMapping("/warenkorb.html")
-    public String ladeWarenkorb(@RequestParam(required = false) Long id, Model model) {
-        model.addAttribute("titel", "Warenkorb");
-        model.addAttribute("warenkorb", this.warenkorb);
-        return "warenkorb";
+            .contentType(MediaType.IMAGE_JPEG)
+            .body(new ByteArrayResource(bytes));
     }
 
     @GetMapping("/kaufen")
     public String kaufen(@RequestParam Long id, Model model, RedirectAttributes redirect, Locale locale) {
-        String message = messageSource.getMessage("cart.product.id.not.found", new Object[]{id}, locale);
+        String message = messageSource.getMessage("cart.product.id.not.found", new String[]{String.valueOf(id)}, locale);
         if (id != null) {
-            Optional<Produkt> produktDB = produktRepository.findById(id);
-            if (produktDB.isPresent()) {
-                Produkt aktuellesProdukt = produktDB.get();
-                warenkorb.getProdukte().add(aktuellesProdukt);
-                message = messageSource.getMessage("cart.added", new Object[]{aktuellesProdukt.getName()}, locale);
+            Produkt produkt = getProdukt(id);
+            if (produkt != null) {
+                warenkorb.getProdukte().add(produkt);
+                message = messageSource.getMessage("cart.added", new String[]{produkt.getName()}, locale);
             }
         }
         redirect.addFlashAttribute("message", message);
@@ -97,19 +108,35 @@ public class SimpleController {
     public String entfernen(@RequestParam Long id, Model model, RedirectAttributes redirect, Locale locale) {
         String message = messageSource.getMessage("cart.product.id.not.found", new Object[]{id}, locale);
         if (id != null) {
-            Produkt gefundenesProdukt = warenkorb.getProdukte().stream()
-                    .filter(p -> id.equals(p.getId()))
-                    .findFirst().get();
+            Produkt gefundenesProdukt = null;
+            for (Produkt p : warenkorb.getProdukte()) {
+                if (id.equals(p.getId())) {
+                    gefundenesProdukt = p;
+                    break;
+                }
+            }
             if (gefundenesProdukt != null) {
                 warenkorb.getProdukte().remove(gefundenesProdukt);
                 message = messageSource.getMessage("cart.removed", new Object[]{gefundenesProdukt.getName()}, locale);
             } else {
-                message = messageSource.getMessage("cart.not.found", new Object[]{gefundenesProdukt.getName()}, locale);
+                message = messageSource.getMessage("cart.not.found", new String[]{String.valueOf(id)}, locale);
             }
         }
         redirect.addFlashAttribute("message", message);
         model.addAttribute("titel", "Warenkorb");
         model.addAttribute("warenkorb", warenkorb);
         return "redirect:/warenkorb.html";
+    }
+
+    private Produkt getProdukt(Long id) {
+        Optional<Produkt> produktDB;
+        if (!produkte.isEmpty()) {
+            LOG.debug("loading from Cache");
+            produktDB = produkte.stream().filter(p -> p.getId() == id).findFirst();
+        } else {
+            LOG.debug("loading from Repository");
+            produktDB = produktRepository.findById(id);
+        }
+        return produktDB.isPresent() ? produktDB.get() : null;
     }
 }

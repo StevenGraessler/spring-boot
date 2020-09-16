@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="de">
+<head>
+	<title></title>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="description" content="A web shop that uses Material Design Lite.">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
+
+	<link rel="stylesheet" href="/material.grey-pink.min.css"/>
+	<link rel="stylesheet" href="/fonts.css"/>
+	<link rel="stylesheet" href="/styles.css"/>
+	<link rel="stylesheet" href="/icons.css"/>
+
+	<script src="/js/vue.min.js"></script>
+	<script src="/js/vue-i18n.min.js"></script>
+	<script src="components.js"></script>
+
+	<script type="text/javascript" language="JavaScript">
+		loadLanguage().then(function () {
+			new Vue({
+				i18n: i18n,
+				el: '#app',
+				components: {
+					'app-header': AppHeader,
+					'drawer': Drawer,
+					'app-footer': AppFooter
+				},
+				data: {
+					bestellungen: [],
+					message: ''
+				},
+				methods: {},
+				created: function () {
+					let kundenId = localStorage.getItem('kundenId')
+					if (kundenId) {
+						fetch('/app/bestellungen/' + kundenId)
+							.then(res => res.json())
+							.then(bestellungen => {
+								this.bestellungen = bestellungen
+							})
+					}
+				}
+			})
+		})
+	</script>
+</head>
+<body>
+<div id="app" class="mdl-layout mdl-js-layout mdl-layout--fixed-header has-drawer is-upgraded">
+	<app-header active="orders" :title="$t('orders.title')"></app-header>
+	<drawer></drawer>
+
+
+	<main class="mdl-layout__content">
+		<div class="portfolio-max-width">
+			<h4 v-show="message" v-text="message"></h4>
+			<div class="mdl-cell mdl-cell--10-col mdl-card mdl-shadow--4dp">
+				<div class="mdl-card__title">
+					<span class="mdl-card__title-text" v-t="'orders.title'"></span>
+				</div>
+				<table class="mdl-data-table mdl-js-data-table">
+					<thead>
+					<tr>
+						<th class="mdl-data-table__cell--non-numeric mdl-cell--1-col" v-t="'label.order.nr'"></th>
+						<th class="mdl-data-table__cell--non-numeric mdl-cell--1-col" v-t="'label.order.date'"></th>
+						<th class="mdl-data-table__cell--non-numeric mdl-cell--1-col" v-t="'label.order.items'"></th>
+						<th class="mdl-cell--1-col" v-t="'label.order.total'"></th>
+					</tr>
+					</thead>
+					<tbody>
+					<tr v-for="bestellung in bestellungen">
+						<td class="mdl-data-table__cell--non-numeric">{{bestellung.id}}</td>
+						<td class="mdl-data-table__cell--non-numeric">{{bestellung.datum}}</td>
+						<td class="" align="center">{{bestellung.produkte.length}}</td>
+						<td>{{bestellung.gesamtpreis}} €</td>
+					</tr>
+					</tbody>
+					<tfoot>
+					<tr>
+						<td colspan="4">
+							{{$t('orders.total')}}
+							{{bestellungen.length}}
+						</td>
+					</tr>
+					</tfoot>
+				</table>
+			</div>
+		</div>
+
+		<app-footer></app-footer>
+	</main>
+</div>
+<script src="/js/material.min.js"></script>
+</body>
+</html>

@@ -1,6 +1,13 @@
 package de.karrieretutor.springboot.domain;
 
-import javax.persistence.*;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import de.karrieretutor.springboot.enums.Kategorie;
+import de.karrieretutor.springboot.enums.Unterkategorie;
+
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -9,7 +16,7 @@ import javax.validation.constraints.NotNull;
 public class Produkt {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @NotBlank(message = "{validation.produkt.name}")
@@ -29,7 +36,8 @@ public class Produkt {
 
     private String dateiname;
 
-    @Lob
+
+    @JsonIgnore
     private byte[] datei;
 
     public Produkt() {
@@ -40,6 +48,12 @@ public class Produkt {
         this.herkunft = herkunft;
         this.kategorie = kategorie;
         this.unterkategorie = unterkategorie;
+    }
+
+    public Produkt(String name, String herkunft, Kategorie kategorie, Unterkategorie unterkategorie, Long id, double preis) {
+        this(name, herkunft, kategorie, unterkategorie);
+        this.id = id;
+        this.preis = preis;
     }
 
     public Long getId() {
@@ -101,5 +115,17 @@ public class Produkt {
         this.datei = datei;
     }
 
+    @Override
+    public String toString() {
+        return "Produkt{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", herkunft='" + herkunft + '\'' +
+                ", kategorie=" + kategorie +
+                ", unterkategorie=" + unterkategorie +
+                ", preis=" + preis +
+                ", dateiname='" + dateiname + '\'' +
+                '}';
+    }
 }
 

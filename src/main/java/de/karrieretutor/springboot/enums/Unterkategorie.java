@@ -1,4 +1,6 @@
-package de.karrieretutor.springboot.domain;
+package de.karrieretutor.springboot.enums;
+
+import com.fasterxml.jackson.annotation.JsonValue;
 
 public enum Unterkategorie {
     SUBKAT1("enum.subcategory.1"),
@@ -14,6 +16,7 @@ public enum Unterkategorie {
         this.messageKey = messageKey;
     }
 
+    @JsonValue
     public String getMessageKey() {
         return messageKey;
     }

@@ -1,4 +1,6 @@
-package de.karrieretutor.springboot.domain;
+package de.karrieretutor.springboot.enums;
+
+import com.fasterxml.jackson.annotation.JsonValue;
 
 public enum Kategorie {
     KAT1("enum.category.1"),
@@ -13,6 +15,7 @@ public enum Kategorie {
         this.messageKey = displayValue;
     }
 
+    @JsonValue
     public String getMessageKey() {
         return messageKey;
     }
