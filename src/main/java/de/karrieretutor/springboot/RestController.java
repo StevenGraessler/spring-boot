@@ -2,6 +2,7 @@ package de.karrieretutor.springboot;
 
 import de.karrieretutor.springboot.domain.*;
 import de.karrieretutor.springboot.service.BestellService;
+import de.karrieretutor.springboot.service.ProduktService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +22,7 @@ public class RestController {
     Logger LOG = LoggerFactory.getLogger(RestController.class);
 
     @Autowired
-    ProduktRepository produktRepository;
+    ProduktService produktService;
 
     @Autowired
     KundenRepository kundenRepository;
@@ -41,10 +42,7 @@ public class RestController {
 
     @GetMapping("/produkte")
     public List<Produkt> ladeProdukte() {
-        if (produkte.isEmpty()) {
-            produktRepository.findAll().forEach(produkte::add);
-        }
-        return produkte;
+        return produktService.ladeProdukte();
     }
 
     @GetMapping("/messages")
