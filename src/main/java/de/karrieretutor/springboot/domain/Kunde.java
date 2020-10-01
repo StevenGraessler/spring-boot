@@ -6,6 +6,7 @@ import de.karrieretutor.springboot.enums.Zahlungsart;
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import static javax.persistence.CascadeType.ALL;
 
@@ -26,6 +27,8 @@ public class Kunde {
     private String kreditkartenNr;
     private String email;
 
+    private String sprache = Locale.GERMAN.getLanguage();
+
     @JsonIgnore
     @OneToMany(mappedBy = "kunde", cascade = ALL)
     private List<Bestellung> bestellungen = new ArrayList<>();
@@ -43,6 +46,10 @@ public class Kunde {
     public void setVorname(String vorname) {
         this.vorname = vorname;
     }
+    public String getNameFormatiert() {
+        return vorname + " " + nachname;
+    }
+
 
     public String getNachname() {
         return nachname;
@@ -98,6 +105,13 @@ public class Kunde {
     }
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public String getSprache() {
+        return sprache;
+    }
+    public void setSprache(String sprache) {
+        this.sprache = sprache;
     }
 
     public List<Bestellung> getBestellungen() {
