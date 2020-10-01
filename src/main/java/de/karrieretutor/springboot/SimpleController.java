@@ -1,7 +1,7 @@
 package de.karrieretutor.springboot;
 
+import de.karrieretutor.springboot.domain.BestelltesProdukt;
 import de.karrieretutor.springboot.domain.Produkt;
-import de.karrieretutor.springboot.domain.ProduktRepository;
 import de.karrieretutor.springboot.domain.Warenkorb;
 import de.karrieretutor.springboot.service.ProduktService;
 import org.slf4j.Logger;
@@ -39,8 +39,6 @@ public class SimpleController {
     @Autowired
     MessageSource messageSource;
 
-    @Autowired
-    ProduktRepository produktRepository;
     public Warenkorb warenkorb = new Warenkorb();
 
     @GetMapping("/")
@@ -71,16 +69,13 @@ public class SimpleController {
     @GetMapping("/fotos/{id}")
     public ResponseEntity<Resource> fotos(@PathVariable Long id) throws IOException, URISyntaxException {
         byte[] bytes = new byte[0];
-        if (id != null) {
-            Produkt produkt = produktService.getProdukt(id);
-            if (produkt != null) {
-                bytes = produkt.getDatei();
-                // wenn kein Bild hochgeladen wurde, dann lade das Standard-Bild
-                if (bytes == null || bytes.length == 0) {
-                    URL imageURL = this.getClass().getClassLoader().getResource("./static/images/no-image.png");
-                    bytes = Files.readAllBytes(Paths.get(imageURL.toURI()));
-                }
-            }
+        Produkt produkt = produktService.getProdukt(id);
+        if (produkt == null || produkt.getDatei() == null || produkt.getDatei().length==0) {
+            // wenn kein Bild hochgeladen wurde, dann lade das Standard-Bild
+            URL imageURL = this.getClass().getClassLoader().getResource("./static/images/no-image.png");
+            bytes = Files.readAllBytes(Paths.get(imageURL.toURI()));
+        } else {
+            bytes = produkt.getDatei();
         }
         return ResponseEntity.ok()
             .contentType(MediaType.IMAGE_JPEG)
@@ -93,7 +88,7 @@ public class SimpleController {
         if (id != null) {
             Produkt produkt = produktService.getProdukt(id);
             if (produkt != null) {
-                warenkorb.getProdukte().add(produkt);
+                warenkorb.produktHinzufuegen(produkt);
                 message = messageSource.getMessage("cart.added", new String[]{produkt.getName()}, locale);
             }
         }
@@ -103,21 +98,10 @@ public class SimpleController {
 
     @GetMapping("/entfernen")
     public String entfernen(@RequestParam Long id, Model model, RedirectAttributes redirect, Locale locale) {
-        String message = messageSource.getMessage("cart.product.id.not.found", new Object[]{id}, locale);
-        if (id != null) {
-            Produkt gefundenesProdukt = null;
-            for (Produkt p : warenkorb.getProdukte()) {
-                if (id.equals(p.getId())) {
-                    gefundenesProdukt = p;
-                    break;
-                }
-            }
-            if (gefundenesProdukt != null) {
-                warenkorb.getProdukte().remove(gefundenesProdukt);
-                message = messageSource.getMessage("cart.removed", new Object[]{gefundenesProdukt.getName()}, locale);
-            } else {
-                message = messageSource.getMessage("cart.not.found", new String[]{String.valueOf(id)}, locale);
-            }
+        String message = messageSource .getMessage("cart.not.found", new String[]{String.valueOf(id)}, locale);
+        BestelltesProdukt entferntesProdukt = warenkorb.produktEntfernen(id);
+        if (entferntesProdukt != null) {
+            message = messageSource.getMessage("cart.removed", new Object[]{entferntesProdukt.getProdukt().getName()}, locale);
         }
         redirect.addFlashAttribute("message", message);
         model.addAttribute("titel", "Warenkorb");

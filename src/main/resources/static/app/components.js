@@ -66,7 +66,10 @@ const AppHeader = {
 	data: function() {
 		return {
 			lang: lang,
-			warenkorb: {produkte: []}
+			warenkorb: {
+				produkte: [],
+				gesamtzahl: 0
+			}
 		}
 	},
 	watch: {
@@ -74,9 +77,23 @@ const AppHeader = {
 			loadLanguage(newValue).then(() => document.title = i18n.t(this.title))
 		}
 	},
+	methods: {
+		findProduktInWarenkorb: function(produktId) {
+			let gefundenesProdukt
+			for(let warenkorbProdukt of this.warenkorb.produkte) {
+				if(warenkorbProdukt.produkt.id === produktId) {
+					gefundenesProdukt = warenkorbProdukt
+					break
+				}
+			}
+			return gefundenesProdukt
+		}
+	},
 	computed: {
 		cartItems: function() {
-			return this.badge || this.warenkorb.produkte.length
+			if (this.badge != null)
+				return this.badge
+			return this.warenkorb.gesamtzahl
 		}
 	},
 	created: function() {
@@ -110,7 +127,9 @@ const AppFooter = {
 	template:
 	`<footer class="mdl-mini-footer">
 		<div class="mdl-mini-footer__left-section">
-			<div class="mdl-logo" v-t="'footer.title'"></div>
+			<div class="mdl-logo">
+        <a href="/index.html" v-t="'footer.title'"></a>
+			</div>
 		</div>
 		<div class="mdl-mini-footer__right-section">
 			<ul class="mdl-mini-footer__link-list">

@@ -15,32 +15,32 @@
 	<script src="components.js"></script>
 
 	<script type="text/javascript" language="JavaScript">
-		loadLanguage().then(function () {
-			new Vue({
-				i18n: i18n,
-				el: '#app',
-				components: {
-					'app-header': AppHeader,
-					'drawer': Drawer,
-					'app-footer': AppFooter
-				},
-				data: {
-					bestellungen: [],
-					message: ''
-				},
-				methods: {},
-				created: function () {
-					let kundenId = localStorage.getItem('kundenId')
-					if (kundenId) {
-						fetch('/app/bestellungen/' + kundenId)
-							.then(res => res.json())
-							.then(bestellungen => {
-								this.bestellungen = bestellungen
-							})
-					}
+	loadLanguage().then(function () {
+		new Vue({
+			i18n: i18n,
+			el: '#app',
+			components: {
+				'app-header': AppHeader,
+				'drawer': Drawer,
+				'app-footer': AppFooter
+			},
+			data: {
+				bestellungen: [],
+				message: ''
+			},
+			methods: {},
+			created: function () {
+				let kundenId = localStorage.getItem('kundenId')
+				if (kundenId) {
+					fetch('/app/bestellungen/' + kundenId)
+						.then(res => res.json())
+						.then(bestellungen => {
+							this.bestellungen = bestellungen
+						})
 				}
-			})
+			}
 		})
+	})
 	</script>
 </head>
 <body>
@@ -48,36 +48,34 @@
 	<app-header active="orders" title="orders.title"></app-header>
 	<drawer></drawer>
 
-
 	<main class="mdl-layout__content">
 		<div class="portfolio-max-width">
 			<h4 v-show="message" v-text="message"></h4>
-			<div class="mdl-cell mdl-cell--10-col mdl-card mdl-shadow--4dp">
+
+			<div class="center mdl-cell mdl-cell--6-col mdl-card mdl-shadow--4dp">
 				<div class="mdl-card__title">
 					<span class="mdl-card__title-text" v-t="'orders.title'"></span>
 				</div>
 				<table class="mdl-data-table mdl-js-data-table">
 					<thead>
 					<tr>
-						<th class="mdl-data-table__cell--non-numeric mdl-cell--1-col" v-t="'label.order.nr'"></th>
-						<th class="mdl-data-table__cell--non-numeric mdl-cell--1-col" v-t="'label.order.date'"></th>
-						<th class="mdl-data-table__cell--non-numeric mdl-cell--1-col" v-t="'label.order.items'"></th>
-						<th class="mdl-cell--1-col" v-t="'label.order.total'"></th>
+						<th v-t="'label.order.nr'"></th>
+						<th v-t="'label.order.date'"></th>
+						<th v-t="'label.order.items'"></th>
+						<th class="right" v-t="'label.order.total'"></th>
 					</tr>
 					</thead>
 					<tbody>
 					<tr v-for="bestellung in bestellungen">
-						<td class="mdl-data-table__cell--non-numeric">{{bestellung.id}}</td>
-						<td class="mdl-data-table__cell--non-numeric">
-							<a :href="'order.html?id='+bestellung.id">{{bestellung.datum}}</a>
-						</td>
-						<td class="" align="center">{{bestellung.produkte.length}}</td>
-						<td>{{bestellung.gesamtpreis}} €</td>
+						<td class="centered">{{bestellung.id}}</td>
+						<td><a :href="'order.html?id='+bestellung.id">{{bestellung.datum}}</a></td>
+						<td class="centered">{{bestellung.gesamtzahl}}</td>
+						<td class="right">{{bestellung.gesamtpreis}} €</td>
 					</tr>
 					</tbody>
 					<tfoot>
 					<tr>
-						<td colspan="4">
+						<td colspan="4" class="right">
 							{{$t('orders.total')}}
 							{{bestellungen.length}}
 						</td>

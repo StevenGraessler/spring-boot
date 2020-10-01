@@ -53,9 +53,6 @@ public class Bestellung {
     }
     public void setKunde(Kunde kunde) {
         this.kunde = kunde;
-        if (!this.kunde.getBestellungen().contains(this)) {
-            this.kunde.getBestellungen().add(this);
-        }
     }
 
     public List<BestelltesProdukt> getProdukte() {
@@ -69,9 +66,18 @@ public class Bestellung {
     public String getGesamtpreis() {
         double gesamtpreis = 0;
         for(BestelltesProdukt p : produkte) {
-            gesamtpreis += p.getProdukt().getPreis();
+            gesamtpreis += p.getProdukt().getPreis() * p.getAnzahl();
         }
         return String.format("%.2f", gesamtpreis);
+
+    }
+
+    public int getGesamtzahl() {
+        int gesamtzahl = 0;
+        for(BestelltesProdukt p : produkte) {
+            gesamtzahl += p.getAnzahl();
+        }
+        return gesamtzahl;
 
     }
 }
